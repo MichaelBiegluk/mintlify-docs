@@ -1,0 +1,31 @@
+Implement an automation feature that demonstrates the integration of Playwright with the Kernel SDK for browser session handling. The provided code sample creates a Kernel browser, connects using Playwright over CDP, navigates to a page, retrieves its title, and ensures proper resource cleanup.
+
+Sample code:
+
+import { Kernel } from '@onkernel/sdk';
+import { chromium } from 'playwright';
+
+const kernel = new Kernel({ apiKey: process.env.KERNEL_API_KEY });
+
+// Create a Kernel browser
+const kernelBrowser = await kernel.browsers.create();
+
+// Connect over CDP with Playwright
+const browser = await chromium.connectOverCDP(kernelBrowser.cdp_ws_url);
+
+try {
+  const context = browser.contexts()[0];
+  const page = context.pages()[0];
+  await page.goto('https://example.com');
+  const title = await page.title();
+  console.log('Page title:', title);
+} finally {
+  await browser.close();
+  await kernel.browsers.deleteByID(kernelBrowser.session_id);
+}
+Acceptance Criteria:
+
+Kernel browser creation and deletion demonstrated
+Connection using Playwright's connectOverCDP
+Navigation and retrieval of page title
+Proper cleanup for both browser and Kernel session
